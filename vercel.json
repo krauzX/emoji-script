@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "buildCommand": "cd emojiscript-frontend && pnpm build",
+  "outputDirectory": "emojiscript-frontend/.next",
+  "installCommand": "cd emojiscript-frontend && pnpm install",
+  "devCommand": "cd emojiscript-frontend && pnpm dev",
+  "rewrites": [
+    {
+      "source": "/api/v1/transpile",
+      "destination": "/api/transpile"
+    },
+    {
+      "source": "/api/v1/health",
+      "destination": "/api/transpile"
+    },
+    {
+      "source": "/api/v1/examples",
+      "destination": "/api/transpile"
+    }
+  ]
+}
