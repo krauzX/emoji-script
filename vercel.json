@@ -10,8 +10,8 @@
     }
   ],
   "functions": {
-    "api/*.go": {
-      "runtime": "go1.x"
+    "api/**/*.go": {
+      "runtime": "vercel-go@1.0.0"
     }
   }
 }
