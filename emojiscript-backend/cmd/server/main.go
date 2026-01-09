@@ -204,7 +204,7 @@ func main() {
 
 	origins := os.Getenv("ALLOWED_ORIGINS")
 	if origins == "" {
-		origins = "http://localhost:3000,http://localhost:3001"
+		origins = "http://localhost:3000,http://localhost:3001,https://emoji-script.vercel.app"
 	}
 
 	app.Use(cors.New(cors.Config{
