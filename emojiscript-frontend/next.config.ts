@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
 
-  // Turbopack configuration for Next.js 16
+  // Turbopack configuration for monorepo
   turbopack: {
-    root: path.resolve(__dirname),
+    root: path.resolve(__dirname, ".."),
   },
 
   // Performance optimizations

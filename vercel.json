@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "cd emojiscript-frontend && pnpm build",
+  "framework": "nextjs",
+  "buildCommand": "npm run build --workspace=emojiscript-frontend",
+  "installCommand": "npm ci",
   "outputDirectory": "emojiscript-frontend/.next",
-  "installCommand": "cd emojiscript-frontend && pnpm install",
-  "devCommand": "cd emojiscript-frontend && pnpm dev",
+  "devCommand": "npm run dev --workspace=emojiscript-frontend",
   "rewrites": [
     {
       "source": "/api/v1/transpile",

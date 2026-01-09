@@ -1,0 +1,16 @@
+{
+  "name": "emojiscript-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "emojiscript-frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=emojiscript-frontend",
+    "build": "npm run build --workspace=emojiscript-frontend",
+    "start": "npm run start --workspace=emojiscript-frontend"
+  }
+}
