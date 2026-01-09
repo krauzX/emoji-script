@@ -315,7 +315,7 @@ func main() {
 		return c.JSON(response)
 	})
 
-	api.Post("/validate", func(c *fiber.Ctx) error {
+	api.Post("/api/v1/validate", func(c *fiber.Ctx) error {
 		var req TranspileRequest
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(400).JSON(ValidateResponse{Valid: false, Errors: []string{"Invalid request"}})
@@ -350,7 +350,7 @@ func main() {
 		return c.JSON(ValidateResponse{Valid: len(errors) == 0, Errors: errors})
 	})
 
-	api.Get("/examples", func(c *fiber.Ctx) error {
+	api.Get("/api/v1/examples", func(c *fiber.Ctx) error {
 		syntax := c.Query("syntax", "emoji")
 		examples := []fiber.Map{}
 
