@@ -6,7 +6,11 @@
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "/api/transpile"
+      "destination": "/api/transpile.go"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/emojiscript-frontend/$1"
     }
   ]
 }
