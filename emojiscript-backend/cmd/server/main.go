@@ -217,11 +217,11 @@ func main() {
 
 	api := app.Group("/api/v1")
 
-	api.Get("/health", func(c *fiber.Ctx) error {
+	api.Get("/api/v1/health", func(c *fiber.Ctx) error {
 		return c.JSON(HealthResponse{Status: "healthy", Version: "1.0.0"})
 	})
 
-	api.Post("/transpile", func(c *fiber.Ctx) error {
+	api.Post("/api/v1/transpile", func(c *fiber.Ctx) error {
 		start := time.Now()
 
 		var req TranspileRequest
