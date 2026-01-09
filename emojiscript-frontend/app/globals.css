@@ -1,51 +1,6 @@
-@import "tailwindcss";
-
-@theme {
-  /* Professional Dark Mode Color Palette */
-  --color-background: hsl(240 10% 3.9%);
-  --color-foreground: hsl(0 0% 98%);
-  --color-card: hsl(240 10% 7%);
-  --color-card-foreground: hsl(0 0% 98%);
-  --color-popover: hsl(240 10% 5%);
-  --color-popover-foreground: hsl(0 0% 98%);
-
-  /* Primary - Purple */
-  --color-primary: hsl(270 80% 60%);
-  --color-primary-foreground: hsl(0 0% 100%);
-
-  /* Secondary */
-  --color-secondary: hsl(240 10% 15%);
-  --color-secondary-foreground: hsl(0 0% 98%);
-
-  /* Muted */
-  --color-muted: hsl(240 5% 18%);
-  --color-muted-foreground: hsl(240 5% 64.9%);
-
-  /* Accent */
-  --color-accent: hsl(200 90% 50%);
-  --color-accent-foreground: hsl(240 10% 3.9%);
-
-  /* Success */
-  --color-success: hsl(142 70% 50%);
-  --color-success-foreground: hsl(240 10% 3.9%);
-
-  /* Destructive */
-  --color-destructive: hsl(0 72% 51%);
-  --color-destructive-foreground: hsl(0 0% 100%);
-
-  /* Warning */
-  --color-warning: hsl(45 93% 47%);
-  --color-warning-foreground: hsl(240 10% 3.9%);
-
-  /* Borders & Inputs */
-  --color-border: hsl(240 10% 18%);
-  --color-input: hsl(240 10% 15%);
-  --color-ring: hsl(270 80% 60%);
-
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {

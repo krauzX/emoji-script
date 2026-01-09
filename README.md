@@ -1,36 +1,75 @@
 # EmojiScript
 
-A transpiler that converts emoji-based and markup-based code to JavaScript.
+A production-ready transpiler that converts emoji-based and markup-based code to JavaScript.
 
-## Architecture
+## 🏗️ Architecture
 
-- **Frontend**: Next.js 16 + React 19 (emojiscript-frontend/)
-- **Backend**: Go with AST-based transpiler (emojiscript-backend/)
-- **Serverless API**: Vercel functions using shared transpiler (api/)
-- **Caching**: SHA-256 based LRU (1000 entries, 1 hour TTL)
-- **Validation**: Input sanitization, dangerous pattern detection
-- **Features**: 15+ tag types, scope tracking, error/warning collection
+This is a **monorepo** containing:
 
-## Local Development
+### 1. **Frontend** (`emojiscript-frontend/`)
 
-### Backend (Full Server)
+- **Framework**: Next.js 16 (App Router) + React 19
+- **UI**: Radix UI + Tailwind CSS v3
+- **Editor**: Monaco Editor with syntax validation
+- **State**: Zustand for global state
+- **Runs on**: Vercel Edge Network (Static + SSR)
+
+### 2. **Backend API** (`api/`)
+
+- **Language**: Go serverless functions
+- **Runtime**: Vercel Go 1.x
+- **Features**:
+  - AST-based transpiler (imports from `emojiscript-backend/pkg/transpiler`)
+  - SHA-256 based caching (1000 entries, 1hr TTL)
+  - Input validation & sanitization
+  - Rate limiting ready
+- **Endpoints**: `/api/v1/transpile`, `/api/v1/health`, `/api/v1/examples`
+
+### 3. **Core Transpiler** (`emojiscript-backend/`)
+
+- **Language**: Go with full Fiber server (local development)
+- **Parser**: 432-line AST parser with scope tracking
+- **Transpiler**: 412-line handler supporting 15+ tag types
+- **Local Server**: `http://localhost:3001`
+
+## 🛠️ Local Development
+
+### Prerequisites
+
+- Node.js 20+ (current: v25.2.1)
+- Go 1.23+
+- npm (included with Node)
+
+### Option 1: Full Stack (Recommended)
 
 ```bash
+# Install dependencies
+npm install
+
+# Start Next.js frontend (http://localhost:3000)
+npm run dev
+```
+
+**Frontend will call Vercel API in production** or use the Go backend locally if you run:
+
+```bash
+# Terminal 2: Start Go backend (http://localhost:3001)
 cd emojiscript-backend
 go run cmd/server/main.go
 ```
 
-Server runs on `http://localhost:3001` with rate limiting, CORS, and full middleware stack.
-
-### Frontend
+### Option 2: Frontend Only
 
 ```bash
 cd emojiscript-frontend
-pnpm install
-pnpm dev
+npm run dev
 ```
 
-Frontend runs on `http://localhost:3000`.
+Update `.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-vercel-app.vercel.app/api/v1
+```
 
 ## Features
 
@@ -328,7 +367,7 @@ Get AI-powered emoji suggestions.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) first.
+Contributions are welcome!
 
 ## 📄 License
 
