@@ -135,13 +135,21 @@ export default function CodeEditor() {
         targetLanguage,
         syntaxMode === "markup"
       );
-      if (result.success) {
-        setOutput(result.javascript || result.output || "");
+      if (result.success && result.output) {
+        setOutput(result.output);
       } else {
         setError(result.errors?.join("\n") || "Transpilation failed");
+        setOutput("");
       }
-    } catch (error: any) {
-      setError(error.message || "Failed to transpile");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to transpile";
+      if (errorMessage.includes("fetch") || errorMessage.includes("network")) {
+        setError("Backend unavailable. Please check your connection.");
+      } else {
+        setError(errorMessage);
+      }
+      setOutput("");
     } finally {
       setIsTranspiling(false);
     }

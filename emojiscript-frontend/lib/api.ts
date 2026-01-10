@@ -1,10 +1,10 @@
 // API client
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1000;
+const REQUEST_TIMEOUT = 30000;
 
 export type TargetLanguage = "javascript";
 
@@ -27,13 +27,11 @@ export interface TranspileRequest {
 
 export interface TranspileResponse {
   success: boolean;
-  javascript?: string;
-  output?: string;
-  targetLanguage?: string;
+  output: string;
+  targetLanguage: string;
   errors?: string[];
   warnings?: string[];
-  metadata?: Record<string, any>;
-  transpileTime?: string;
+  metadata?: Record<string, unknown>;
   usedMarkup?: boolean;
 }
 
@@ -80,6 +78,11 @@ class APIClient {
   ): Promise<Response> {
     try {
       this.abortController = new AbortController();
+      const timeoutId = setTimeout(
+        () => this.abortController?.abort(),
+        REQUEST_TIMEOUT
+      );
+
       const response = await fetch(url, {
         ...options,
         signal: this.abortController.signal,
@@ -88,8 +91,13 @@ class APIClient {
           ...options.headers,
         },
       });
+
+      clearTimeout(timeoutId);
       return response;
     } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Request timeout - backend may be slow or unavailable");
+      }
       if (
         retries > 0 &&
         error instanceof Error &&
@@ -175,15 +183,21 @@ class APIClient {
       if (!response.ok) throw new Error("Failed to get examples");
 
       const data = await response.json();
-      return data.map((item: any) => ({
-        title: item.title,
-        description: item.description,
-        code: item.code,
+      const examples = Array.isArray(data) ? data : data.examples;
+
+      if (!Array.isArray(examples)) {
+        return [];
+      }
+
+      return examples.map((item: any) => ({
+        title: item.title || item.name || "Untitled",
+        description: item.description || "",
+        code: item.code || "",
         category: item.category || "general",
-        syntax: item.syntax,
+        syntax: item.syntax || syntaxType,
+        targetLanguage: item.targetLanguage,
       }));
     } catch (error) {
-      console.error("getExamples error:", error);
       return [];
     }
   }

@@ -5,12 +5,16 @@
   "outputDirectory": "emojiscript-frontend/.next",
   "rewrites": [
     {
-      "source": "/api/v1/:path*",
-      "destination": "/api/transpile.go"
+      "source": "/api/v1/transpile",
+      "destination": "/api/transpile"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/emojiscript-frontend/$1"
+      "source": "/api/v1/health",
+      "destination": "/api/transpile"
+    },
+    {
+      "source": "/api/v1/examples",
+      "destination": "/api/transpile"
     }
   ]
 }

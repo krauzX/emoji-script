@@ -5,12 +5,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
 
-  // Turbopack configuration for monorepo
   turbopack: {
     root: path.resolve(__dirname, ".."),
   },
 
-  // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   }, // Security headers

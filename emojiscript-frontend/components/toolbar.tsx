@@ -63,13 +63,8 @@ export default function Toolbar() {
       const useMarkup = syntaxMode === "markup";
       const result = await apiClient.transpile(code, targetLanguage, useMarkup);
 
-      if (result.success) {
-        const output =
-          result.output ||
-          result[targetLanguage as keyof typeof result] ||
-          result.javascript ||
-          "";
-        setOutput(output as string);
+      if (result.success && result.output) {
+        setOutput(result.output);
         setUsedMarkup(result.usedMarkup || false);
         toast.success(
           `Transpiled to ${targetLanguage} using ${

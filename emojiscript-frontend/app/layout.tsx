@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://emojiscript.dev",
+    url: "https://emoji-script.vercel.app",
     title: "EmojiScript - Code with Emojis",
     description: "A modern emoji-based programming language transpiler",
     siteName: "EmojiScript",

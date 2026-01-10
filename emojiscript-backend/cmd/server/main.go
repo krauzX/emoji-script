@@ -217,11 +217,11 @@ func main() {
 
 	api := app.Group("/api/v1")
 
-	api.Get("/api/v1/health", func(c *fiber.Ctx) error {
+	api.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(HealthResponse{Status: "healthy", Version: "1.0.0"})
 	})
 
-	api.Post("/api/v1/transpile", func(c *fiber.Ctx) error {
+	api.Post("/transpile", func(c *fiber.Ctx) error {
 		start := time.Now()
 
 		var req TranspileRequest
@@ -315,7 +315,7 @@ func main() {
 		return c.JSON(response)
 	})
 
-	api.Post("/api/v1/validate", func(c *fiber.Ctx) error {
+	api.Post("/validate", func(c *fiber.Ctx) error {
 		var req TranspileRequest
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(400).JSON(ValidateResponse{Valid: false, Errors: []string{"Invalid request"}})
@@ -350,7 +350,7 @@ func main() {
 		return c.JSON(ValidateResponse{Valid: len(errors) == 0, Errors: errors})
 	})
 
-	api.Get("/api/v1/examples", func(c *fiber.Ctx) error {
+	api.Get("/examples", func(c *fiber.Ctx) error {
 		syntax := c.Query("syntax", "emoji")
 		examples := []fiber.Map{}
 
@@ -385,7 +385,7 @@ func main() {
 			}
 		}
 
-		return c.JSON(examples)
+		return c.JSON(fiber.Map{"examples": examples})
 	})
 
 	log.Printf("🚀 EmojiScript API running on port %s\n", port)

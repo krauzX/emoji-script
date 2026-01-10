@@ -46,14 +46,24 @@ func (tc *TranspileCache) Set(key string, result *TranspileResponse) {
 	defer tc.mu.Unlock()
 
 	if len(tc.cache) >= MaxCacheSize {
-		var oldestKey string
-		var oldestTime time.Time
+		now := time.Now()
+		cutoff := now.Add(-CacheTTL)
+		deleted := 0
 		for k, v := range tc.cache {
-			if oldestKey == "" || v.timestamp.Before(oldestTime) {
-				oldestKey, oldestTime = k, v.timestamp
+			if v.timestamp.Before(cutoff) {
+				delete(tc.cache, k)
+				deleted++
+				if deleted >= MaxCacheSize/4 {
+					break
+				}
 			}
 		}
-		delete(tc.cache, oldestKey)
+		if len(tc.cache) >= MaxCacheSize {
+			for k := range tc.cache {
+				delete(tc.cache, k)
+				break
+			}
+		}
 	}
 
 	tc.cache[key] = &CacheEntry{result: result, timestamp: time.Now()}
@@ -75,8 +85,22 @@ type TranspileResponse struct {
 	UsedMarkup     bool                   `json:"usedMarkup,omitempty"`
 }
 
+type Example struct {
+	Title          string `json:"title"`
+	Description    string `json:"description"`
+	Code           string `json:"code"`
+	Category       string `json:"category"`
+	Syntax         string `json:"syntax"`
+	TargetLanguage string `json:"targetLanguage,omitempty"`
+}
+
 func Handler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	origin := r.Header.Get("Origin")
+	if origin == "https://emoji-script.vercel.app" || origin == "http://localhost:3000" || origin == "http://localhost:3001" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
@@ -88,17 +112,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	path := r.URL.Path
 
-	if strings.HasSuffix(path, "/health") {
+	if strings.HasSuffix(path, "/api/v1/health") || strings.HasSuffix(path, "/health") {
 		json.NewEncoder(w).Encode(map[string]string{"status": "healthy", "version": "1.0.0"})
 		return
 	}
 
-	if strings.HasSuffix(path, "/examples") {
+	if strings.HasSuffix(path, "/api/v1/examples") || strings.HasSuffix(path, "/examples") {
 		json.NewEncoder(w).Encode(map[string]interface{}{"examples": getExamples()})
 		return
 	}
 
-	if r.Method != "POST" || !strings.HasSuffix(path, "/transpile") {
+	if r.Method != "POST" || (!strings.HasSuffix(path, "/api/v1/transpile") && !strings.HasSuffix(path, "/transpile")) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}
@@ -264,67 +288,87 @@ func transpileToLanguage(code, targetLang string) (string, error) {
 	return result, nil
 }
 
-func getExamples() []map[string]interface{} {
-	return []map[string]interface{}{
+func getExamples() []Example {
+	return []Example{
 		{
-			"name":        "Hello World",
-			"category":    "basics",
-			"code":        "📦 message 🟰 \"Hello, World!\"\n📝(message)",
-			"description": "Basic variable and print",
+			Title:          "Hello World",
+			Description:    "Classic greeting",
+			Code:           "👋🌍",
+			Category:       "basics",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Variables",
-			"category":    "basics",
-			"code":        "📦 x 🟰 42\n📦 name 🟰 \"test\"\n📝(x)",
-			"description": "Variable declarations",
+			Title:          "Variables",
+			Description:    "Declare and use variables",
+			Code:           "📦 x = 5\n📦 y = 10\n➕ x y",
+			Category:       "basics",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Function",
-			"category":    "functions",
-			"code":        "🎯 greet(name) {\n  🔙 \"Hello \" ➕ name\n}",
-			"description": "Function definition",
+			Title:          "Conditions",
+			Description:    "If-else statement",
+			Code:           "❓ x > 5 {\n  📢 \"Greater\"\n} ❌ {\n  📢 \"Smaller\"\n}",
+			Category:       "control-flow",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Loop",
-			"category":    "loops",
-			"code":        "🔁(🔢 i 🟰 0➖ i ⬇️ 5➖ i➕➕) {\n  📝(i)\n}",
-			"description": "For loop",
+			Title:          "Loop",
+			Description:    "For loop example",
+			Code:           "🔄 i = 0; i < 10; i++ {\n  📢 i\n}",
+			Category:       "control-flow",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Conditional",
-			"category":    "control",
-			"code":        "📦 x 🟰 10\n❓(x ⬆️ 5) {\n  📝(\"Greater\")\n}",
-			"description": "If statement",
+			Title:          "Function",
+			Description:    "Define and call a function",
+			Code:           "🎯 greet(name) {\n  ↩️ \"Hello \" + name\n}\n📢 greet(\"World\")",
+			Category:       "functions",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Class",
-			"category":    "classes",
-			"code":        "🔐 Person {\n  🔧(name) {\n    🎭.name 🟰 name\n  }\n}",
-			"description": "Class definition",
+			Title:          "Array Operations",
+			Description:    "Work with arrays",
+			Code:           "📋 arr = [1, 2, 3, 4, 5]\n📢 arr[0]\n📏 arr",
+			Category:       "data-structures",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Async Function",
-			"category":    "async",
-			"code":        "⚡ 🎯 fetchData() {\n  📦 data 🟰 ⏳ fetch(url)\n  🔙 data\n}",
-			"description": "Async/await",
+			Title:          "Object Creation",
+			Description:    "Create and use objects",
+			Code:           "🎁 person = {\n  name: \"Alice\",\n  age: 30\n}\n📢 person.name",
+			Category:       "data-structures",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Array",
-			"category":    "data",
-			"code":        "📦 numbers 🟰 [1, 2, 3, 4, 5]\n📝(numbers)",
-			"description": "Array creation",
+			Title:          "Math Operations",
+			Description:    "Perform calculations",
+			Code:           "📦 result = (10 ➕ 5) ➖ 3 ✖️ 2\n📢 result",
+			Category:       "basics",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Object",
-			"category":    "data",
-			"code":        "📦 user 🟰 {name: \"John\", age: 25}\n📝(user.name)",
-			"description": "Object literal",
+			Title:          "String Manipulation",
+			Description:    "Work with strings",
+			Code:           "📦 str = \"Hello\"\n📦 upper = str.toUpperCase()\n📢 upper",
+			Category:       "basics",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 		{
-			"name":        "Try-Catch",
-			"category":    "control",
-			"code":        "🛡️ {\n  📦 result 🟰 riskyOperation()\n} 🚨(error) {\n  📝(error)\n}",
-			"description": "Error handling",
+			Title:          "Error Handling",
+			Description:    "Try-catch example",
+			Code:           "🛡️ {\n  📦 x = riskyOperation()\n  📢 x\n} 🚫 (err) {\n  📢 \"Error: \" + err\n}",
+			Category:       "advanced",
+			Syntax:         "emoji",
+			TargetLanguage: "javascript",
 		},
 	}
 }
